@@ -8,6 +8,8 @@ export const useSlideStore = create<SlideStore>((set, get) => ({
     { id: generateId(), order: 0, imageData: null },
   ],
   selectedSlideId: null,
+  generatedImages: [],
+  uploadedImages: [],
 
   addSlide: () => {
     const { slides } = get();
@@ -57,5 +59,19 @@ export const useSlideStore = create<SlideStore>((set, get) => ({
   setSelectedSlide: (id: string | null) => {
     set({ selectedSlideId: id });
   },
-}));
 
+  addGeneratedImages: (images: string[]) => {
+    const { generatedImages } = get();
+    // Add new images at start, avoid duplicates, keep last 20
+    const newImages = [...images, ...generatedImages];
+    const unique = [...new Set(newImages)].slice(0, 20);
+    set({ generatedImages: unique });
+  },
+
+  addUploadedImage: (image: string) => {
+    const { uploadedImages } = get();
+    // Add new image at start, avoid duplicates, keep last 20
+    const newImages = [image, ...uploadedImages.filter(img => img !== image)].slice(0, 20);
+    set({ uploadedImages: newImages });
+  },
+}));

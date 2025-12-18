@@ -49,13 +49,13 @@ export function SlideCard({ slide, index }: SlideCardProps) {
         {index + 1}
       </span>
 
-      {/* Slide card */}
+      {/* Slide card - TikTok 9:16 aspect ratio (1080x1920) */}
       <div
         {...attributes}
         {...listeners}
         onClick={handleClick}
         className={cn(
-          'relative w-[140px] h-[249px] rounded-lg cursor-grab active:cursor-grabbing transition-all',
+          'relative w-[135px] aspect-[9/16] rounded-lg cursor-grab active:cursor-grabbing transition-all overflow-hidden',
           'bg-card border-2',
           isSelected
             ? 'border-blue-500 shadow-lg shadow-blue-500/20'
@@ -63,12 +63,12 @@ export function SlideCard({ slide, index }: SlideCardProps) {
           isDragging && 'opacity-50'
         )}
       >
-        {/* Image content */}
+        {/* Image content - fills width, centered vertically, maintains aspect ratio */}
         {slide.imageData ? (
           <img
             src={slide.imageData}
             alt={`Slide ${index + 1}`}
-            className="w-full h-full object-cover rounded-md"
+            className="w-full h-full object-contain"
             draggable={false}
           />
         ) : (
