@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-import { Slide, SlideStore } from '@/types/slide';
+import { Slide, SlideStore, CropRatio } from '@/types/slide';
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
 export const useSlideStore = create<SlideStore>((set, get) => ({
   slides: [
-    { id: generateId(), order: 0, imageData: null },
+    { id: generateId(), order: 0, imageData: null, cropRatio: '9:16' },
   ],
   selectedSlideId: null,
   generatedImages: [],
@@ -17,6 +17,7 @@ export const useSlideStore = create<SlideStore>((set, get) => ({
       id: generateId(),
       order: slides.length,
       imageData: null,
+      cropRatio: '9:16',
     };
     set({ slides: [...slides, newSlide] });
   },
@@ -36,6 +37,14 @@ export const useSlideStore = create<SlideStore>((set, get) => ({
     const { slides } = get();
     const updated = slides.map((s) =>
       s.id === id ? { ...s, imageData } : s
+    );
+    set({ slides: updated });
+  },
+
+  updateSlideCropRatio: (id: string, cropRatio: CropRatio) => {
+    const { slides } = get();
+    const updated = slides.map((s) =>
+      s.id === id ? { ...s, cropRatio } : s
     );
     set({ slides: updated });
   },

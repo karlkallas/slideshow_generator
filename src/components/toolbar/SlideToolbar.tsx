@@ -4,8 +4,12 @@ import { useState } from 'react';
 import { Image, Crop, Type, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { useSlideStore } from '@/stores/useSlideStore';
 import { ImageDialog } from '@/components/image-dialog/ImageDialog';
+import type { CropRatio } from '@/types/slide';
 
 interface SlideToolbarProps {
   slideId: string;
@@ -13,7 +17,10 @@ interface SlideToolbarProps {
 
 export function SlideToolbar({ slideId }: SlideToolbarProps) {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
-  const { updateSlide, deleteSlide } = useSlideStore();
+  const { slides, updateSlide, updateSlideCropRatio, deleteSlide } = useSlideStore();
+  
+  const currentSlide = slides.find(s => s.id === slideId);
+  const currentCropRatio = currentSlide?.cropRatio || '9:16';
 
   const handleImageSelect = (imageData: string) => {
     updateSlide(slideId, imageData);
@@ -45,21 +52,44 @@ export function SlideToolbar({ slideId }: SlideToolbarProps) {
           </TooltipContent>
         </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-not-allowed opacity-50"
-              disabled
+        <Popover>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <Crop className="w-4 h-4" />
+                </Button>
+              </PopoverTrigger>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Crop ratio</p>
+            </TooltipContent>
+          </Tooltip>
+          <PopoverContent className="w-32 p-3" align="center" side="bottom">
+            <RadioGroup
+              value={currentCropRatio}
+              onValueChange={(value) => updateSlideCropRatio(slideId, value as CropRatio)}
+              className="flex flex-col gap-2"
             >
-              <Crop className="w-4 h-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Crop (coming soon)</p>
-          </TooltipContent>
-        </Tooltip>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="9:16" id={`crop-9-16-${slideId}`} className="cursor-pointer" />
+                <Label htmlFor={`crop-9-16-${slideId}`} className="cursor-pointer text-sm">9:16</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="4:5" id={`crop-4-5-${slideId}`} className="cursor-pointer" />
+                <Label htmlFor={`crop-4-5-${slideId}`} className="cursor-pointer text-sm">4:5</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <RadioGroupItem value="1:1" id={`crop-1-1-${slideId}`} className="cursor-pointer" />
+                <Label htmlFor={`crop-1-1-${slideId}`} className="cursor-pointer text-sm">1:1</Label>
+              </div>
+            </RadioGroup>
+          </PopoverContent>
+        </Popover>
 
         <Tooltip>
           <TooltipTrigger asChild>

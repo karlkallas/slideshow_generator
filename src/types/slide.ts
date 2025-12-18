@@ -1,7 +1,10 @@
+export type CropRatio = '4:5' | '9:16' | '1:1';
+
 export interface Slide {
   id: string;
   order: number;
   imageData: string | null; // base64 data URL
+  cropRatio: CropRatio; // default: '9:16'
 }
 
 export interface SlideStore {
@@ -14,6 +17,7 @@ export interface SlideStore {
   addSlide: () => void;
   deleteSlide: (id: string) => void;
   updateSlide: (id: string, imageData: string) => void;
+  updateSlideCropRatio: (id: string, cropRatio: CropRatio) => void;
   reorderSlides: (activeId: string, overId: string) => void;
   setSelectedSlide: (id: string | null) => void;
   addGeneratedImages: (images: string[]) => void;

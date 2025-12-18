@@ -5,11 +5,45 @@ import { CSS } from '@dnd-kit/utilities';
 import { cn } from '@/lib/utils';
 import { useSlideStore } from '@/stores/useSlideStore';
 import { SlideToolbar } from '@/components/toolbar/SlideToolbar';
-import type { Slide } from '@/types/slide';
+import type { Slide, CropRatio } from '@/types/slide';
 
 interface SlideCardProps {
   slide: Slide;
   index: number;
+}
+
+// Calculate the crop mask percentage based on ratio
+// Slide is 9:16 (aspect ratio 0.5625). Calculate how much to mask for other ratios.
+function getCropMaskPercent(cropRatio: CropRatio): number {
+  // The slide is 9:16 = 0.5625
+  // For a target ratio, we need to find what portion of the height is cropped
+  const slideRatio = 9 / 16; // 0.5625
+
+  switch (cropRatio) {
+    case '9:16':
+      return 0; // No mask needed
+    case '4:5': {
+      // 4:5 = 0.8, which is wider than 9:16
+      // To fit 4:5 content in 9:16 frame: height = width / targetRatio
+      // If width = 9, height for 4:5 = 9 / 0.8 = 11.25 (instead of 16)
+      // Mask = (16 - 11.25) / 16 = 29.7% total, so ~14.8% each side
+      const targetRatio = 4 / 5;
+      const targetHeight = 9 / targetRatio;
+      const maskTotal = (16 - targetHeight) / 16;
+      return (maskTotal / 2) * 100;
+    }
+    case '1:1': {
+      // 1:1 = 1.0, which is wider than 9:16
+      // If width = 9, height for 1:1 = 9 / 1 = 9 (instead of 16)
+      // Mask = (16 - 9) / 16 = 43.75% total, so ~21.9% each side
+      const targetRatio = 1 / 1;
+      const targetHeight = 9 / targetRatio;
+      const maskTotal = (16 - targetHeight) / 16;
+      return (maskTotal / 2) * 100;
+    }
+    default:
+      return 0;
+  }
 }
 
 // Shared card content component to avoid duplication
@@ -20,6 +54,8 @@ function SlideCardContent({ slide, index, isSelected = false, isDragging = false
   isDragging?: boolean;
   isOverlay?: boolean;
 }) {
+  const cropMaskPercent = getCropMaskPercent(slide.cropRatio);
+
   return (
     <div
       className={cn(
@@ -50,6 +86,22 @@ function SlideCardContent({ slide, index, isSelected = false, isDragging = false
           <div className="w-1/2 h-1 bg-muted-foreground/20 rounded" />
           <div className="w-3/5 h-1 bg-muted-foreground/20 rounded" />
         </div>
+      )}
+
+      {/* Crop mask overlay - blacks out top and bottom based on cropRatio */}
+      {cropMaskPercent > 0 && (
+        <>
+          {/* Top mask */}
+          <div 
+            className="absolute top-0 left-0 right-0 bg-black pointer-events-none"
+            style={{ height: `${cropMaskPercent}%` }}
+          />
+          {/* Bottom mask */}
+          <div 
+            className="absolute bottom-0 left-0 right-0 bg-black pointer-events-none"
+            style={{ height: `${cropMaskPercent}%` }}
+          />
+        </>
       )}
     </div>
   );
