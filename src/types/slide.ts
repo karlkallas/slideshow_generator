@@ -22,4 +22,6 @@ export interface SlideStore {
   setSelectedSlide: (id: string | null) => void;
   addGeneratedImages: (images: string[]) => void;
   addUploadedImage: (image: string) => void;
+  moveSlideLeft: (id: string) => void;
+  moveSlideRight: (id: string) => void;
 }

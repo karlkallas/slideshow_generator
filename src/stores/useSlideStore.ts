@@ -83,4 +83,26 @@ export const useSlideStore = create<SlideStore>((set, get) => ({
     const newImages = [image, ...uploadedImages.filter(img => img !== image)].slice(0, 20);
     set({ uploadedImages: newImages });
   },
+
+  moveSlideLeft: (id: string) => {
+    const { slides } = get();
+    const index = slides.findIndex((s) => s.id === id);
+    if (index <= 0) return; // Can't move first slide left
+    
+    const newSlides = [...slides];
+    [newSlides[index - 1], newSlides[index]] = [newSlides[index], newSlides[index - 1]];
+    const reordered = newSlides.map((s, i) => ({ ...s, order: i }));
+    set({ slides: reordered });
+  },
+
+  moveSlideRight: (id: string) => {
+    const { slides } = get();
+    const index = slides.findIndex((s) => s.id === id);
+    if (index === -1 || index >= slides.length - 1) return; // Can't move last slide right
+    
+    const newSlides = [...slides];
+    [newSlides[index], newSlides[index + 1]] = [newSlides[index + 1], newSlides[index]];
+    const reordered = newSlides.map((s, i) => ({ ...s, order: i }));
+    set({ slides: reordered });
+  },
 }));

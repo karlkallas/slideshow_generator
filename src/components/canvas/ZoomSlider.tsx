@@ -17,8 +17,8 @@ export function ZoomSlider({ zoom, onZoomChange }: ZoomSliderProps) {
       <Slider
         value={[zoom]}
         onValueChange={handleChange}
-        min={0.5}
-        max={2}
+            min={0.6}
+            max={2.4}
         step={0.05}
         className="w-full"
       />

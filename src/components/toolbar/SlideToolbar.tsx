@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Image, Crop, Type, Trash2 } from 'lucide-react';
+import { Image, Crop, Type, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -17,10 +17,13 @@ interface SlideToolbarProps {
 
 export function SlideToolbar({ slideId }: SlideToolbarProps) {
   const [imageDialogOpen, setImageDialogOpen] = useState(false);
-  const { slides, updateSlide, updateSlideCropRatio, deleteSlide } = useSlideStore();
+  const { slides, updateSlide, updateSlideCropRatio, deleteSlide, moveSlideLeft, moveSlideRight } = useSlideStore();
   
   const currentSlide = slides.find(s => s.id === slideId);
   const currentCropRatio = currentSlide?.cropRatio || '9:16';
+  const slideIndex = slides.findIndex(s => s.id === slideId);
+  const canMoveLeft = slideIndex > 0;
+  const canMoveRight = slideIndex < slides.length - 1;
 
   const handleImageSelect = (imageData: string) => {
     updateSlide(slideId, imageData);
@@ -33,9 +36,11 @@ export function SlideToolbar({ slideId }: SlideToolbarProps) {
   return (
     <TooltipProvider delayDuration={300}>
       <div 
-        className="flex items-center gap-1 mt-3"
+        className="flex flex-col items-center gap-2"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Main toolbar */}
+        <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -128,6 +133,46 @@ export function SlideToolbar({ slideId }: SlideToolbarProps) {
           onOpenChange={setImageDialogOpen}
           onImageSelect={handleImageSelect}
         />
+        </div>
+
+        {/* Move arrows - only show if more than one slide */}
+        {slides.length > 1 && (
+          <div className="flex items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => moveSlideLeft(slideId)}
+                  disabled={!canMoveLeft}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Move left</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 text-muted-foreground hover:text-foreground cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
+                  onClick={() => moveSlideRight(slideId)}
+                  disabled={!canMoveRight}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Move right</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        )}
       </div>
     </TooltipProvider>
   );
